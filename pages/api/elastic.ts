@@ -5,6 +5,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios'
 import { JSDOM } from 'jsdom'
 
+
 // export const client = new Client({
 //   node: 'https://localhost:9200',
 //   auth: {
@@ -17,15 +18,25 @@ import { JSDOM } from 'jsdom'
 //   }
 // })
 
+
+
 async function getSpotifyData() {
-  const res = await axios.get('https://spotifycharts.com/regional/global/daily/latest')
-  const dom = new JSDOM(res.data)
+  const response = await axios.get('https://spotifycharts.com/regional/global/daily/latest')
+  // const list:any = []
+  const text = await response.data
+  const dom = new JSDOM(text)
+  const t: any = dom.window.document.querySelector('.chart-table > tbody')
+  Array.from(t.rows).forEach((element: any) => {
+    console.log('==========')
+    console.log(element.querySelector('.chart-table-position')?.textContent)
+    console.log(element.querySelector('.chart-table-track > strong')?.textContent)
+    console.log(element.querySelector('.chart-table-track > span')?.textContent.substr(3))
+    console.log(element.querySelector('.chart-table-streams')?.textContent)
+    console.log('==========')
+  })
 
-  const table = dom.window.document.querySelectorAll('tr')
-
-  return res.data
+  return 'hej'
 }
-
 
 
 export default async function handler(
