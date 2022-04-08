@@ -1,5 +1,4 @@
 export interface Root {
-  id: number
   date: string
   countries: Country[]
 }
@@ -10,19 +9,18 @@ export interface Country {
   toplist: Song[]
 }
 
-enum Codes {
+export enum Codes {
   global = 'global',
   se = 'se',
   us = 'us',
   gb = 'gb',
   br = 'br',
-  au ='au'
-  
+  au = 'au',
 }
 
 export interface Song {
-  artist: string,
-  song: string,
+  artist: string
+  song: string
   position: number
   streams: number
 }
