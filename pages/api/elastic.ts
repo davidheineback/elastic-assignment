@@ -4,6 +4,8 @@ import fs from 'fs-extra';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios'
 import { JSDOM } from 'jsdom'
+import moment from 'moment'
+import { Root, Song, Country, Codes } from '../../types/types';
 
 
 // export const client = new Client({
@@ -18,22 +20,61 @@ import { JSDOM } from 'jsdom'
 //   }
 // })
 
+const countries = {
+  global: 'Global',
+  se: 'Sverige',
+  us: 'United States of America',
+  gb: 'United Kingdom',
+  br: 'Brazil',
+  au: 'Australia'
+}
+
 
 
 async function getSpotifyData() {
-  const response = await axios.get('https://spotifycharts.com/regional/global/daily/latest')
-  // const list:any = []
-  const text = await response.data
-  const dom = new JSDOM(text)
-  const t: any = dom.window.document.querySelector('.chart-table > tbody')
-  Array.from(t.rows).forEach((element: any) => {
-    console.log('==========')
-    console.log(element.querySelector('.chart-table-position')?.textContent)
-    console.log(element.querySelector('.chart-table-track > strong')?.textContent)
-    console.log(element.querySelector('.chart-table-track > span')?.textContent.substr(3))
-    console.log(element.querySelector('.chart-table-streams')?.textContent)
-    console.log('==========')
-  })
+  let date = moment('2022-04-06').format('YYYY-MM-DD')
+  const list: Root[] = []
+
+  for(let i = 0; moment(date).isAfter('2022-04-03'); i++ ) {
+    
+    date = moment(date).subtract(i, 'days').format('YYYY-MM-DD')
+    const obj: Root = {
+      id: i+1,
+      date,
+      countries: []
+    }
+
+    Object.keys(countries).forEach(async (code) => {
+      // console.log(countries[code as keyof typeof countries])
+      const response = await axios.get(`https://spotifycharts.com/regional/${code}/daily/${date}`)
+
+      const toplist: Song[] = []
+
+      const text = await response.data
+      const dom = new JSDOM(text)
+      const table: any = dom.window.document.querySelector('.chart-table > tbody')
+      Array.from(table.rows).forEach((element: any) => {
+        const song: Song = {
+          artist: element.querySelector('.chart-table-track > span')?.textContent.substr(3),
+          song: element.querySelector('.chart-table-track > strong')?.textContent,
+          position: element.querySelector('.chart-table-position')?.textContent,
+          streams: element.querySelector('.chart-table-streams')?.textContent
+        }
+        toplist.push(song)
+      })
+      const country: Country = {
+        country: countries[code as keyof typeof countries],
+        code: Codes[code as keyof typeof Codes],
+        toplist
+      }
+
+      obj.countries.push(country)
+
+    })
+    
+  }
+  
+
 
   return 'hej'
 }
