@@ -1,7 +1,34 @@
+import axios from 'axios'
+import dynamic from 'next/dynamic'
 import Head from 'next/head'
+import React from 'react'
 import styles from '../styles/Home.module.css'
+import CustomChart from '../components/CustomChart'
+
+export async function getServerSideProps() {
+  try {
+    console.log('=====!====!!!!!===')
+    const res = await axios.get(`${process.env.API_URL}/api/chart-query`)
+    console.log(
+      res.data.aggregations['0'].buckets[0]['1'].buckets.filter(
+        (doc: any) => doc.doc_count > 0
+      )
+    )
+  } catch (error) {
+    console.log(error)
+  }
+  return {
+    props: {}, // will be passed to the page component as props
+  }
+}
 
 function Home() {
+  const [renderChart, setRenderChart] = React.useState(false)
+
+  React.useEffect(() => {
+    setRenderChart(true)
+  }, [])
+
   return (
     <div className={styles.container}>
       <Head>
@@ -10,7 +37,9 @@ function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className={styles.main}></main>
+      <main className={styles.main}>
+        {renderChart && <CustomChart data={[]} type="bar" />}
+      </main>
     </div>
   )
 }
