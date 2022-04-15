@@ -5,11 +5,7 @@ export interface Root {
   toplist: Song[]
 }
 
-// export interface Country {
-//   country: string
-//   code: Codes.global | Codes.us | Codes.se | Codes.gb | Codes.br | Codes.au
-//   toplist: Song[]
-// }
+
 
 export enum Codes {
   global = 'global',
