@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "NODE_ENV=development next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -15,6 +15,7 @@
     "apexcharts": "^3.35.0",
     "axios": "^0.26.1",
     "fs-extra": "^10.0.1",
+    "isomorphic-unfetch": "^3.1.0",
     "jsdom": "^19.0.0",
     "moment": "^2.29.2",
     "next": "12.1.4",
