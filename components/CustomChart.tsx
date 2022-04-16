@@ -10,22 +10,26 @@ export interface ChartTypes {
 }
 
 export interface ChartData {
-  label: string
-  value: number
+  labels: string[]
+  series: [
+    {
+      name: string
+      data: number[]
+    }
+  ]
 }
 
 type Easing = 'linear' | 'easein' | 'easeout' | 'easeinout' | undefined
 const easyingType: Easing = 'linear'
 
 function CustomChart({
-  data = [],
+  data = {} as ChartData,
   type = 'bar',
 }: {
-  data: ChartData[]
-  type: ChartTypes['types']
+  data: ChartData
+  type?: ChartTypes['types']
 }) {
-  const [chartData, setChartData] = React.useState<ChartData[]>(data)
-
+  const [chartData, setChartData] = React.useState<ChartData>(data)
   const [options, setOptions] = React.useState({
     chart: {
       id: 'apexchart-example',
@@ -44,30 +48,22 @@ function CustomChart({
       },
     },
     xaxis: {
-      categories: chartData.map((d) => d.label),
+      categories: chartData.labels,
     },
   })
 
-  const [series, setSeries] = React.useState([
-    {
-      name: 'series-1',
-      data: chartData.map((d) => d.value),
-    },
-  ])
+  const [series, setSeries] = React.useState({} as ChartData['series'])
 
   React.useEffect(() => {
-    setSeries([
-      {
-        name: 'series-1',
-        data: chartData.map((d) => d.value),
-      },
-    ])
+    console.log(chartData.series)
+
+    setSeries(chartData.series)
 
     setOptions((prevOptions) => {
       return {
         ...prevOptions,
         xaxis: {
-          categories: chartData.map((d) => d.label),
+          categories: chartData.labels,
         },
       }
     })
@@ -77,9 +73,9 @@ function CustomChart({
     <Chart
       options={options}
       series={series}
-      type="bar"
-      width={500}
-      height={320}
+      type={type}
+      width={1600}
+      height={500}
     />
   )
 }
