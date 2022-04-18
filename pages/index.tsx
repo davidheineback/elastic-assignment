@@ -5,6 +5,7 @@ import styles from '../styles/Home.module.css'
 import CustomChart, { ChartData } from '../components/CustomChart'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
+import FlagBtn from '../components/FlagBtn'
 
 export async function getServerSideProps({ query }: any) {
   try {
@@ -86,6 +87,15 @@ function Home({ data }: any) {
         <button onClick={() => router.push(`?from=${fromDate}&to=${toDate}`)}>
           Dates
         </button>
+        <div className={styles.flagContainer}>
+          <FlagBtn code="au" />
+          <FlagBtn code="br" />
+          <FlagBtn code="gb" />
+          <FlagBtn code="se" />
+          <FlagBtn code="us" />
+          <FlagBtn code="global" />
+        </div>
+
         {renderChart && <CustomChart data={chartData} />}
       </main>
     </div>
