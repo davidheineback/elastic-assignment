@@ -2,73 +2,75 @@ import { Client } from '@elastic/elasticsearch'
 import { NextApiRequest, NextApiResponse } from 'next'
 import elasticClient from '../../components/ElasticClient'
 
-const searchOptions = {
-  index: 'scrapedspotifydata',
-  body: {
-    aggs: {
-      '0': {
-        terms: {
-          field: 'country.keyword',
-          order: {
-            '2': 'desc',
-          },
-          size: 7,
-        },
-        aggs: {
-          '1': {
-            date_histogram: {
-              field: 'date',
-              fixed_interval: '3h',
-              time_zone: 'Europe/Stockholm',
+function getSearchOptions(from: string, to: string) {
+  return {
+    index: 'scrapedspotifydata',
+    body: {
+      aggs: {
+        '0': {
+          terms: {
+            field: 'country.keyword',
+            order: {
+              '2': 'desc',
             },
-            aggs: {
-              '2': {
-                sum: {
-                  field: 'toplist.streams',
+            size: 7,
+          },
+          aggs: {
+            '1': {
+              date_histogram: {
+                field: 'date',
+                fixed_interval: '3h',
+                time_zone: 'Europe/Stockholm',
+              },
+              aggs: {
+                '2': {
+                  sum: {
+                    field: 'toplist.streams',
+                  },
                 },
               },
             },
-          },
-          '2': {
-            sum: {
-              field: 'toplist.streams',
+            '2': {
+              sum: {
+                field: 'toplist.streams',
+              },
             },
           },
         },
       },
-    },
-    size: 0,
-    fields: [
-      {
-        field: 'date',
-        format: 'date_time',
+      size: 0,
+      fields: [
+        {
+          field: 'date',
+          format: 'date_time',
+        },
+      ],
+      script_fields: {},
+      stored_fields: ['*'],
+      runtime_mappings: {},
+      _source: {
+        excludes: [],
       },
-    ],
-    script_fields: {},
-    stored_fields: ['*'],
-    runtime_mappings: {},
-    _source: {
-      excludes: [],
-    },
-    query: {
-      bool: {
-        must: [],
-        filter: [
-          {
-            range: {
-              date: {
-                format: 'strict_date_optional_time',
-                gte: '2022-04-01T07:22:54.890Z',
-                lte: '2022-04-06T07:38:53.127Z',
+      query: {
+        bool: {
+          must: [],
+          filter: [
+            {
+              range: {
+                date: {
+                  format: 'strict_date_optional_time',
+                  gte: `${from}`,
+                  lte: `${to}`,
+                },
               },
             },
-          },
-        ],
-        should: [],
-        must_not: [],
+          ],
+          should: [],
+          must_not: [],
+        },
       },
     },
-  },
+  }
 }
 
 export default async function handler(
@@ -79,6 +81,10 @@ export default async function handler(
     res.setHeader('Allow', ['GET'])
     return res.status(405).end(`Method ${req.method} Not Allowed`)
   }
+
+  const { from, to } = req.query
+
+  const searchOptions = getSearchOptions(from as string, to as string)
 
   const response = await elasticClient.search(searchOptions)
 
