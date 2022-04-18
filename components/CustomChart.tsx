@@ -9,14 +9,14 @@ export interface ChartTypes {
   types: 'bar' | 'line' | 'area' | 'pie'
 }
 
+type Series = {
+  name: string
+  data: number[]
+}
+
 export interface ChartData {
   labels: string[]
-  series: [
-    {
-      name: string
-      data: number[]
-    }
-  ]
+  series: Series[]
 }
 
 type Easing = 'linear' | 'easein' | 'easeout' | 'easeinout' | undefined
@@ -52,11 +52,9 @@ function CustomChart({
     },
   })
 
-  const [series, setSeries] = React.useState({} as ChartData['series'])
+  const [series, setSeries] = React.useState<Series[]>([])
 
   React.useEffect(() => {
-    console.log(chartData.series)
-
     setSeries(chartData.series)
 
     setOptions((prevOptions) => {
