@@ -4,8 +4,8 @@ import React from 'react'
 import styles from '../styles/Home.module.css'
 import CustomChart, { ChartData } from '../components/CustomChart'
 import { useRouter } from 'next/router'
-import Image from 'next/image'
 import FlagBtn from '../components/FlagBtn'
+import DatePicker from '../components/Datepicker'
 
 export async function getServerSideProps({ query }: any) {
   try {
@@ -36,8 +36,6 @@ async function getData(from: string = '2022-04-01', to: string = '2022-04-06') {
 function Home({ data }: any) {
   const [chartData, setChartData] = React.useState<ChartData>({} as ChartData)
   const [renderChart, setRenderChart] = React.useState(false)
-  const [fromDate, setFromDate] = React.useState('2022-04-01')
-  const [toDate, setToDate] = React.useState('2022-04-06')
 
   const router = useRouter()
 
@@ -74,19 +72,7 @@ function Home({ data }: any) {
       </Head>
 
       <main className={styles.main}>
-        <input
-          type="date"
-          value={fromDate}
-          onChange={(e) => setFromDate(e.target.value)}
-        />
-        <input
-          type="date"
-          value={toDate}
-          onChange={(e) => setToDate(e.target.value)}
-        />
-        <button onClick={() => router.push(`?from=${fromDate}&to=${toDate}`)}>
-          Dates
-        </button>
+        <DatePicker />
         <div className={styles.flagContainer}>
           <FlagBtn code="au" />
           <FlagBtn code="br" />
