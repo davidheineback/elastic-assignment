@@ -3,12 +3,16 @@ import Head from 'next/head'
 import React from 'react'
 import styles from '../styles/Home.module.css'
 import CustomChart, { ChartData } from '../components/CustomChart'
-import { AppProps } from 'next/app'
+import { useRouter } from 'next/router'
+import Image from 'next/image'
 
-export async function getServerSideProps() {
+export async function getServerSideProps({ query }: any) {
   try {
-    const res = await axios.get(`${process.env.API_URL}/api/chart-query`)
-    const data = res.data.aggregations['0'].buckets
+    if (query.from && query.to) {
+      const data = await getData(query.from, query.to)
+      return { props: { data } }
+    }
+    const data = await getData()
     return {
       props: {
         data,
@@ -22,12 +26,22 @@ export async function getServerSideProps() {
   }
 }
 
+async function getData(from: string = '2022-04-01', to: string = '2022-04-06') {
+  let url = `${process.env.API_URL}/api/chart-query?to=${to}&from=${from}`
+  const res = await axios.get(url)
+  return res.data.aggregations['0'].buckets
+}
+
 function Home({ data }: any) {
-  console.log(data)
   const [chartData, setChartData] = React.useState<ChartData>({} as ChartData)
   const [renderChart, setRenderChart] = React.useState(false)
+  const [fromDate, setFromDate] = React.useState('2022-04-01')
+  const [toDate, setToDate] = React.useState('2022-04-06')
+
+  const router = useRouter()
 
   React.useEffect(() => {
+    setRenderChart(false)
     const labels = data[0]['1']?.buckets
       .filter((d: any) => d.doc_count > 0)
       .map((key: any) => key.key_as_string.substring(0, 10))
@@ -44,8 +58,11 @@ function Home({ data }: any) {
       labels,
       series,
     })
+  }, [data, router.query])
+
+  React.useEffect(() => {
     setRenderChart(true)
-  }, [data])
+  }, [chartData])
 
   return (
     <div className={styles.container}>
@@ -56,6 +73,19 @@ function Home({ data }: any) {
       </Head>
 
       <main className={styles.main}>
+        <input
+          type="date"
+          value={fromDate}
+          onChange={(e) => setFromDate(e.target.value)}
+        />
+        <input
+          type="date"
+          value={toDate}
+          onChange={(e) => setToDate(e.target.value)}
+        />
+        <button onClick={() => router.push(`?from=${fromDate}&to=${toDate}`)}>
+          Dates
+        </button>
         {renderChart && <CustomChart data={chartData} />}
       </main>
     </div>
