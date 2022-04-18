@@ -35,7 +35,18 @@ async function getData(from: string = '2022-04-01', to: string = '2022-04-06') {
 
 function Home({ data }: any) {
   const [chartData, setChartData] = React.useState<ChartData>({} as ChartData)
+  const [initData, setInitData] = React.useState<ChartData>({} as ChartData)
   const [renderChart, setRenderChart] = React.useState(false)
+  const [activeCountries, setActiveCountries] = React.useState<{
+    [key: string]: boolean
+  }>({
+    au: true,
+    br: true,
+    gb: true,
+    us: true,
+    se: true,
+    global: true,
+  })
 
   const router = useRouter()
 
@@ -46,6 +57,7 @@ function Home({ data }: any) {
       .map((key: any) => key.key_as_string.substring(0, 10))
 
     const series = data.map((d: any) => {
+      console.log(d.key)
       return {
         name: d.key,
         data: d['1']?.buckets
@@ -53,6 +65,7 @@ function Home({ data }: any) {
           .map((key: any) => key['2']?.value),
       }
     })
+    setInitData({ labels, series })
     setChartData({
       labels,
       series,
@@ -61,7 +74,44 @@ function Home({ data }: any) {
 
   React.useEffect(() => {
     setRenderChart(true)
+    console.log(chartData)
   }, [chartData])
+
+  const handleActiveFlags = (country: string) => {
+    setActiveCountries({
+      ...activeCountries,
+      [country]: !activeCountries[country],
+    })
+  }
+
+  React.useEffect(() => {
+    setRenderChart(false)
+
+    const countries: { [key: string]: string } = {
+      global: 'Global',
+      se: 'Sverige',
+      us: 'United States of America',
+      gb: 'United Kingdom',
+      br: 'Brazil',
+      au: 'Australia',
+    }
+
+    const series = initData.series
+    if (series) {
+      const newSeries = series.filter((s: any) => {
+        const name = Object.keys(countries).find(
+          (key) => countries[key] === s.name
+        )
+        return activeCountries[name!]
+      })
+      setChartData(() => ({
+        ...chartData,
+        series: newSeries,
+      }))
+    }
+  }, [activeCountries, initData])
+
+  // Object.keys(object).find((key) => object[key] === value)
 
   return (
     <div className={styles.container}>
@@ -74,12 +124,16 @@ function Home({ data }: any) {
       <main className={styles.main}>
         <DatePicker />
         <div className={styles.flagContainer}>
-          <FlagBtn code="au" />
-          <FlagBtn code="br" />
-          <FlagBtn code="gb" />
-          <FlagBtn code="se" />
-          <FlagBtn code="us" />
-          <FlagBtn code="global" />
+          {Object.entries(activeCountries).map(([key, value]) => {
+            return (
+              <FlagBtn
+                onClick={() => handleActiveFlags(`${key}`)}
+                key={key}
+                active={value}
+                code={key}
+              />
+            )
+          })}
         </div>
 
         {renderChart && <CustomChart data={chartData} />}

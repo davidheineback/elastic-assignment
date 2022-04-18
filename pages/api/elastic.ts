@@ -21,7 +21,7 @@ async function getSpotifyData() {
   const list: Root[] = []
 
   for (let i = 0; moment(date).isAfter('2022-04-02'); i++) {
-    // delay each start with 2000
+    // delay each start with 2000 to prevent hitting rate limit
     await new Promise((resolve) => {
       setTimeout(resolve, 2000)
     })
