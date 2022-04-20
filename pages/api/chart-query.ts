@@ -83,9 +83,13 @@ export default async function handler(
 
   const { from, to } = req.query
 
-  const searchOptions = getSearchOptions(from as string, to as string)
+  if (from && to) {
+    const searchOptions = getSearchOptions(from as string, to as string)
 
-  const response = await elasticClient.search(searchOptions)
+    const response = await elasticClient.search(searchOptions)
 
-  res.status(200).json({ aggregations: response.aggregations })
+    res.status(200).json({ aggregations: response.aggregations })
+  } else {
+    res.status(400).json({ message: 'Bad Request' })
+  }
 }
