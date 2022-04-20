@@ -140,7 +140,12 @@ function Home({ data }: any) {
           })}
         </div>
 
-        {renderChart && <CustomChart data={chartData} type="area" />}
+        {renderChart && (
+          <CustomChart
+            data={chartData}
+            type={chartData.labels.length > 4 ? 'area' : 'bar'}
+          />
+        )}
       </main>
     </div>
   )
