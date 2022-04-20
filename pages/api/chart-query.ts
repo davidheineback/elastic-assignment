@@ -1,10 +1,9 @@
-import { Client } from '@elastic/elasticsearch'
 import { NextApiRequest, NextApiResponse } from 'next'
 import elasticClient from '../../components/ElasticClient'
 
 function getSearchOptions(from: string, to: string) {
   return {
-    index: 'scrapedspotifydata',
+    index: 'spotifydata',
     body: {
       aggs: {
         '0': {
