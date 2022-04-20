@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 
 function DatePicker() {
   const [fromDate, setFromDate] = React.useState('2022-04-12')
-  const [toDate, setToDate] = React.useState('2022-04-17')
+  const [toDate, setToDate] = React.useState('2022-04-16')
 
   const router = useRouter()
 

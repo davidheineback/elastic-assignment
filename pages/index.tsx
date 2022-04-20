@@ -10,6 +10,14 @@ import DatePicker from '../components/DatePicker'
 export async function getServerSideProps({ query }: any) {
   try {
     if (query.from && query.to) {
+      if (query.from > '2022-04-16') {
+        return {
+          redirect: {
+            destination: `?from=${'2022-04-16'}&to=${'2022-04-16'}`,
+            permanent: false,
+          },
+        }
+      }
       if (query.from > query.to) {
         return {
           redirect: {
@@ -35,7 +43,7 @@ export async function getServerSideProps({ query }: any) {
   }
 }
 
-async function getData(from: string = '2022-04-12', to: string = '2022-04-17') {
+async function getData(from: string = '2022-04-12', to: string = '2022-04-16') {
   let url = `${process.env.API_URL}/api/chart-query?to=${to}&from=${from}`
   const res = await axios.get(url)
   return res.data.aggregations['0'].buckets
