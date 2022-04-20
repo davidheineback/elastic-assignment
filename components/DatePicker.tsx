@@ -11,15 +11,28 @@ function DatePicker() {
     <>
       <input
         type="date"
+        min="2022-01-01"
+        max="2022-04-16"
         value={fromDate}
         onChange={(e) => setFromDate(e.target.value)}
       />
       <input
         type="date"
         value={toDate}
+        min={fromDate}
+        max="2022-04-16"
         onChange={(e) => setToDate(e.target.value)}
       />
-      <button onClick={() => router.push(`?from=${fromDate}&to=${toDate}`)}>
+      <button
+        onClick={() => {
+          if (fromDate <= toDate) {
+            router.push(`?from=${fromDate}&to=${toDate}`)
+          } else {
+            setToDate(fromDate)
+            router.push(`?from=${fromDate}&to=${fromDate}`)
+          }
+        }}
+      >
         Dates
       </button>
     </>

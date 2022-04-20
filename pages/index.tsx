@@ -10,6 +10,14 @@ import DatePicker from '../components/DatePicker'
 export async function getServerSideProps({ query }: any) {
   try {
     if (query.from && query.to) {
+      if (query.from > query.to) {
+        return {
+          redirect: {
+            destination: `?from=${query.from}&to=${query.from}`,
+            permanent: false,
+          },
+        }
+      }
       const data = await getData(query.from, query.to)
       return { props: { data } }
     }
@@ -132,7 +140,7 @@ function Home({ data }: any) {
           })}
         </div>
 
-        {renderChart && <CustomChart data={chartData} type="line" />}
+        {renderChart && <CustomChart data={chartData} type="area" />}
       </main>
     </div>
   )
