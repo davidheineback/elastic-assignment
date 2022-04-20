@@ -1,5 +1,4 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import { Client } from '@elastic/elasticsearch'
 import fs from 'fs-extra'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import axios from 'axios'
@@ -19,7 +18,7 @@ const countries = {
 
 async function getSpotifyData() {
   let date = moment('2021-01-09').format('YYYY-MM-DD')
-  const file =  fs.readJSONSync('./datac.json')
+  const file =  fs.readJSONSync('./data.json')
   const arr = JSON.parse(file)
   const list: Root[] = arr 
 
@@ -99,6 +98,8 @@ async function addToElastic() {
 
   const client = elasticClient.getClient()
 
+  
+
   try {
     client.indices.create({
       index: 'spotifydata',
@@ -106,6 +107,9 @@ async function addToElastic() {
   } catch (error) {
     console.log(error)
   }
+
+ 
+
 
   const bulk = await client.bulk({ refresh: true, operations })
 
