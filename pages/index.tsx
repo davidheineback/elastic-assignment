@@ -5,7 +5,7 @@ import styles from '../styles/Home.module.css'
 import CustomChart, { ChartData } from '../components/CustomChart'
 import { useRouter } from 'next/router'
 import FlagBtn from '../components/FlagBtn'
-import DatePicker from '../components/Datepicker'
+import DatePicker from '../components/DatePicker'
 
 export async function getServerSideProps({ query }: any) {
   try {
@@ -27,7 +27,7 @@ export async function getServerSideProps({ query }: any) {
   }
 }
 
-async function getData(from: string = '2022-04-01', to: string = '2022-04-06') {
+async function getData(from: string = '2022-04-12', to: string = '2022-04-17') {
   let url = `${process.env.API_URL}/api/chart-query?to=${to}&from=${from}`
   const res = await axios.get(url)
   return res.data.aggregations['0'].buckets
@@ -57,7 +57,6 @@ function Home({ data }: any) {
       .map((key: any) => key.key_as_string.substring(0, 10))
 
     const series = data.map((d: any) => {
-      console.log(d.key)
       return {
         name: d.key,
         data: d['1']?.buckets
@@ -74,7 +73,6 @@ function Home({ data }: any) {
 
   React.useEffect(() => {
     setRenderChart(true)
-    console.log(chartData)
   }, [chartData])
 
   const handleActiveFlags = (country: string) => {
@@ -104,14 +102,12 @@ function Home({ data }: any) {
         )
         return activeCountries[name!]
       })
-      setChartData(() => ({
-        ...chartData,
+      setChartData((prev) => ({
+        ...prev,
         series: newSeries,
       }))
     }
   }, [activeCountries, initData])
-
-  // Object.keys(object).find((key) => object[key] === value)
 
   return (
     <div className={styles.container}>
@@ -136,7 +132,7 @@ function Home({ data }: any) {
           })}
         </div>
 
-        {renderChart && <CustomChart data={chartData} />}
+        {renderChart && <CustomChart data={chartData} type="line" />}
       </main>
     </div>
   )
