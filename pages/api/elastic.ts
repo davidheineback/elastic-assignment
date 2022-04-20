@@ -18,9 +18,9 @@ const countries = {
 
 async function getSpotifyData() {
   let date = moment('2021-01-09').format('YYYY-MM-DD')
-  const file =  fs.readJSONSync('./data.json')
+  const file = fs.readJSONSync('./data.json')
   const arr = JSON.parse(file)
-  const list: Root[] = arr 
+  const list: Root[] = arr
 
   for (let i = 0; moment(date).isAfter('2022-01-01'); i++) {
     // delay each start with 2000 to prevent hitting rate limit
@@ -98,8 +98,6 @@ async function addToElastic() {
 
   const client = elasticClient.getClient()
 
-  
-
   try {
     client.indices.create({
       index: 'spotifydata',
@@ -107,9 +105,6 @@ async function addToElastic() {
   } catch (error) {
     console.log(error)
   }
-
- 
-
 
   const bulk = await client.bulk({ refresh: true, operations })
 
@@ -126,6 +121,16 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const message = await addToElastic()
-  res.status(200).json({ message })
+  console.log(req.headers.authorization)
+  if (
+    req.headers.authorization?.split(' ')[1] ===
+    Buffer.from(
+      `${process.env.ELASTIC_USERNAME}:${process.env.ELASTIC_PASSWORD}`
+    ).toString('base64')
+  ) {
+    const message = await addToElastic()
+    res.status(200).json({ message })
+  } else {
+    res.status(401).json({ message: 'Unauthorized' })
+  }
 }
