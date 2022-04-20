@@ -6,6 +6,7 @@ import axios from 'axios'
 import { JSDOM } from 'jsdom'
 import moment from 'moment'
 import { Root, Song, Codes } from '../../types/types'
+import elasticClient from '../../components/ElasticClient'
 
 const countries = {
   global: 'Global',
@@ -17,10 +18,12 @@ const countries = {
 }
 
 async function getSpotifyData() {
-  let date = moment('2022-04-07').format('YYYY-MM-DD')
-  const list: Root[] = []
+  let date = moment('2021-01-09').format('YYYY-MM-DD')
+  const file =  fs.readJSONSync('./datac.json')
+  const arr = JSON.parse(file)
+  const list: Root[] = arr 
 
-  for (let i = 0; moment(date).isAfter('2022-04-02'); i++) {
+  for (let i = 0; moment(date).isAfter('2022-01-01'); i++) {
     // delay each start with 2000 to prevent hitting rate limit
     await new Promise((resolve) => {
       setTimeout(resolve, 2000)
@@ -73,25 +76,13 @@ async function getSpotifyData() {
         code: Codes[code as keyof typeof Codes],
         toplist,
       }
-
       list.push(obj)
+      fs.writeJSONSync('./data.json', JSON.stringify(list))
     }
   }
 
   return list
 }
-
-export const client = new Client({
-  node: 'https://localhost:9200',
-  auth: {
-    username: process.env.ELASTIC_USERNAME!,
-    password: process.env.ELASTIC_PASSWORD!,
-  },
-  tls: {
-    ca: fs.readFileSync(process.env.CERT_PATH!),
-    rejectUnauthorized: false,
-  },
-})
 
 async function addToElastic() {
   const data = await getSpotifyData()
@@ -99,16 +90,18 @@ async function addToElastic() {
   const operations = data.flatMap((doc: Root, count: number) => [
     {
       index: {
-        _index: 'scrapedspotifydata',
+        _index: 'spotifydata',
         _id: `${doc.date}-index-${count}`,
       },
     },
     doc,
   ])
 
+  const client = elasticClient.getClient()
+
   try {
     client.indices.create({
-      index: 'scrapedspotifydata',
+      index: 'spotifydata',
     })
   } catch (error) {
     console.log(error)
@@ -116,7 +109,7 @@ async function addToElastic() {
 
   const bulk = await client.bulk({ refresh: true, operations })
 
-  const count = await client.count({ index: 'scrapedspotifydata' })
+  const count = await client.count({ index: 'spotifydata' })
 
   if (bulk.errors) {
     return 'error'
