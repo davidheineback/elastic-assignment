@@ -19,18 +19,24 @@ class ElasticClient {
   private url: string
 
   constructor() {
-    if (process.env.NODE_ENV === 'development') {
-      this.url = process.env.LOCAL_CONNECT!
-      this.tls = {
-        ca: fs.readFileSync(process.env.CERT_PATH!),
-        rejectUnauthorized: false,
-      }
-    } else {
-      this.url = process.env.PUBLIC_CONNECT!
-      this.tls = undefined
-    }
+    // if (process.env.NODE_ENV === 'development') {
+    //   this.url = process.env.LOCAL_CONNECT!
+    //   this.tls = {
+    //     ca: fs.readFileSync(process.env.CERT_PATH!),
+    //     rejectUnauthorized: false,
+    //   }
+    // } else {
+    //   this.url = process.env.PUBLIC_CONNECT!
+    //   this.tls = undefined
+    // }
+    this.url = process.env.PUBLIC_CONNECT!
+    this.tls = undefined
 
     this.client = this.connectToClient()
+  }
+
+  getClient() {
+    return this.client
   }
 
   get clientURL() {
