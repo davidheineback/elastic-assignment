@@ -50,6 +50,9 @@ function CustomChart({
     xaxis: {
       categories: chartData.labels,
     },
+    dataLabels: {
+      enabled: false,
+    },
   })
 
   const [series, setSeries] = React.useState<Series[]>([])
