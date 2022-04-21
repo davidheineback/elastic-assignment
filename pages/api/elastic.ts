@@ -16,19 +16,21 @@ const countries = {
   au: 'Australia',
 }
 
-async function getSpotifyData() {
-  let date = moment('2021-01-09').format('YYYY-MM-DD')
-  const file = fs.readJSONSync('./data.json')
-  const arr = JSON.parse(file)
-  const list: Root[] = arr
+async function getSpotifyData(from: string, to: string) {
+  let date = moment(from).format('YYYY-MM-DD')
+  // const file = fs.readJSONSync('./data.json')
+  // const arr = JSON.parse(file)
+  const list: Root[] = []
 
-  for (let i = 0; moment(date).isAfter('2022-01-01'); i++) {
+  for (let i = 0; moment(date).isAfter(to); i++) {
     // delay each start with 2000 to prevent hitting rate limit
     await new Promise((resolve) => {
       setTimeout(resolve, 2000)
     })
 
-    date = moment(date).subtract(1, 'days').format('YYYY-MM-DD')
+    if (i > 0) {
+      date = moment(date).subtract(1, 'days').format('YYYY-MM-DD')
+    }
 
     console.log('-----------------------')
     console.log(`Fetching Date: ${date}`)
@@ -76,15 +78,15 @@ async function getSpotifyData() {
         toplist,
       }
       list.push(obj)
-      fs.writeJSONSync('./data.json', JSON.stringify(list))
+      // fs.writeJSONSync('./data.json', JSON.stringify(list))
     }
   }
 
   return list
 }
 
-async function addToElastic() {
-  const data = await getSpotifyData()
+async function addToElastic(from: string, to: string) {
+  const data = await getSpotifyData(from, to)
 
   const operations = data.flatMap((doc: Root, count: number) => [
     {
@@ -131,8 +133,14 @@ export default async function handler(
       `${process.env.ELASTIC_USERNAME}:${process.env.ELASTIC_PASSWORD}`
     ).toString('base64')
   ) {
-    const message = await addToElastic()
-    res.status(200).json({ message })
+    const { from, to } = req.query
+
+    if (from && to) {
+      const message = await addToElastic(from as string, to as string)
+      res.status(200).json({ message })
+    } else {
+      res.status(400).json({ message: 'Bad request' })
+    }
   } else {
     res.status(401).json({ message: 'Unauthorized' })
   }
