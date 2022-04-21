@@ -10,7 +10,7 @@ import DatePicker from '../components/DatePicker'
 export async function getServerSideProps({ query }: any) {
   try {
     if (query.from && query.to) {
-      if (query.from > '2022-04-16') {
+      if (query.from > '2022-04-16' || query.from < '2021-08-01') {
         return {
           redirect: {
             destination: `?from=${'2022-04-16'}&to=${'2022-04-16'}`,
