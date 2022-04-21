@@ -18,8 +18,6 @@ const countries = {
 
 async function getSpotifyData(from: string, to: string) {
   let date = moment(from).format('YYYY-MM-DD')
-  // const file = fs.readJSONSync('./data.json')
-  // const arr = JSON.parse(file)
   const list: Root[] = []
 
   for (let i = 0; moment(date).isAfter(to); i++) {
@@ -78,7 +76,6 @@ async function getSpotifyData(from: string, to: string) {
         toplist,
       }
       list.push(obj)
-      // fs.writeJSONSync('./data.json', JSON.stringify(list))
     }
   }
 
