@@ -29,8 +29,20 @@ function CustomChart({
   data: ChartData
   type?: ChartTypes['types']
 }) {
+  const breakpoints = [1500, 1400, 1200, 1000, 800, 600, 400]
   const [chartData, setChartData] = React.useState<ChartData>(data)
   const [options, setOptions] = React.useState({
+    responsive: breakpoints.map((breakpoint: number) => {
+      return {
+        breakpoint,
+        options: {
+          chart: {
+            height: breakpoint * 0.75 * 0.6,
+            width: breakpoint * 0.75,
+          },
+        },
+      }
+    }),
     chart: {
       id: 'apexchart-example',
       animations: {
