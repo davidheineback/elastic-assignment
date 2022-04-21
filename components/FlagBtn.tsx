@@ -2,6 +2,10 @@ import React from 'react'
 import styles from '../styles/Home.module.css'
 import Image from 'next/image'
 
+/**
+ *
+ * Represent a jsx component. that renders a flag.
+ */
 function FlagBtn({
   active,
   code,

@@ -1,27 +1,45 @@
 import React from 'react'
 import dynamic from 'next/dynamic'
 
+// dynamic import of react-apexcharts Chart component.
 const Chart = dynamic(() => import('react-apexcharts'), {
   ssr: false,
 })
 
+/**
+ * Valid types for CustomChart
+ */
 export interface ChartTypes {
   types: 'bar' | 'line' | 'area' | 'pie'
 }
 
+/**
+ * Represent a series object.
+ */
 type Series = {
   name: string
   data: number[]
 }
 
+/**
+ * Represent a chart data object
+ */
 export interface ChartData {
   labels: string[]
   series: Series[]
 }
 
+/**
+ * Easing used as enums.
+ */
 type Easing = 'linear' | 'easein' | 'easeout' | 'easeinout' | undefined
 const easyingType: Easing = 'linear'
 
+/**
+ * Represent a CustomChart component.
+ * @param props.data - ChartData object.
+ * @param props.type - Type of chart as string, defaults to 'bar'.
+ */
 function CustomChart({
   data = {} as ChartData,
   type = 'bar',
@@ -29,6 +47,7 @@ function CustomChart({
   data: ChartData
   type?: ChartTypes['types']
 }) {
+  // Breakpoints for responsive chart.
   const breakpoints = [1500, 1400, 1200, 1000, 800, 600, 400]
   const [chartData, setChartData] = React.useState<ChartData>(data)
   const [options, setOptions] = React.useState({
@@ -69,6 +88,7 @@ function CustomChart({
 
   const [series, setSeries] = React.useState<Series[]>([])
 
+  // useEffect sets options and series data when chartData changes.
   React.useEffect(() => {
     setSeries(chartData.series)
 
@@ -82,6 +102,7 @@ function CustomChart({
     })
   }, [chartData])
 
+  // Returns a jsx component for the chart.
   return (
     <Chart
       options={options}

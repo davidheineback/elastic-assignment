@@ -57,6 +57,7 @@ class ElasticClient {
   }
 }
 
+// Creates an instance of ElasticClient class and freeze it to a singleton to use the same client instance through out the application.
 const elasticClient = new ElasticClient()
 Object.freeze(elasticClient)
 export default elasticClient

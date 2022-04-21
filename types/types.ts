@@ -5,8 +5,6 @@ export interface Root {
   toplist: Song[]
 }
 
-
-
 export enum Codes {
   global = 'global',
   se = 'se',

@@ -9,8 +9,11 @@ import DatePicker from '../components/DatePicker'
 
 export async function getServerSideProps({ query }: any) {
   try {
+    // checks if query has from and to parameters.
     if (query.from && query.to) {
+      // checks if the query dates is outside the valid date range...
       if (query.from > '2022-04-16' || query.from < '2021-04-01') {
+        // ...and sets both from and to to the last available date.
         return {
           redirect: {
             destination: `?from=${'2022-04-16'}&to=${'2022-04-16'}`,
@@ -18,7 +21,9 @@ export async function getServerSideProps({ query }: any) {
           },
         }
       }
+      // checks if from date is afer to date...
       if (query.from > query.to) {
+        // ..and query from date as both from and to.
         return {
           redirect: {
             destination: `?from=${query.from}&to=${query.from}`,
@@ -26,9 +31,11 @@ export async function getServerSideProps({ query }: any) {
           },
         }
       }
+      // if no errors, query the data.
       const data = await getData(query.from, query.to)
       return { props: { data } }
     }
+    // if no query parameters, query the default dates.
     const data = await getData()
     return {
       props: {
@@ -43,12 +50,21 @@ export async function getServerSideProps({ query }: any) {
   }
 }
 
+/**
+ *
+ * Method to query own api for data from elastic search.
+ */
 async function getData(from: string = '2022-04-12', to: string = '2022-04-16') {
   let url = `${process.env.API_URL}/api/chart-query?to=${to}&from=${from}`
   const res = await axios.get(url)
   return res.data.aggregations['0'].buckets
 }
 
+/**
+ *
+ * Main component.
+ * Represents a jsx component that renders datepicker, flag button filter and chart.
+ */
 function Home({ data }: any) {
   const [chartData, setChartData] = React.useState<ChartData>({} as ChartData)
   const [initData, setInitData] = React.useState<ChartData>({} as ChartData)
@@ -66,6 +82,7 @@ function Home({ data }: any) {
 
   const router = useRouter()
 
+  // useEffect set Initial data and update chartdata when data and router.query changes.
   React.useEffect(() => {
     setRenderChart(false)
     const labels = data[0]['1']?.buckets
@@ -87,10 +104,12 @@ function Home({ data }: any) {
     })
   }, [data, router.query])
 
+  // set render true when chartData changes.
   React.useEffect(() => {
     setRenderChart(true)
   }, [chartData])
 
+  // handles wheter a country is active or not.
   const handleActiveFlags = (country: string) => {
     setActiveCountries({
       ...activeCountries,
@@ -98,6 +117,7 @@ function Home({ data }: any) {
     })
   }
 
+  // use effect to set chartData when activeCountries or initData changes.
   React.useEffect(() => {
     setRenderChart(false)
 
@@ -110,9 +130,11 @@ function Home({ data }: any) {
       au: 'Australia',
     }
 
+    // create series from the initData.series.
     const series = initData.series
     if (series) {
       const newSeries = series.filter((s: any) => {
+        // filter the name of the country with corresponding series key.
         const name = Object.keys(countries).find(
           (key) => countries[key] === s.name
         )

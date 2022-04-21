@@ -16,6 +16,10 @@ const countries = {
   au: 'Australia',
 }
 
+/**
+ *
+ * Method to scrape historic data from spotifycharts.com/regional
+ */
 async function getSpotifyData(from: string, to: string) {
   let date = moment(from).format('YYYY-MM-DD')
   const list: Root[] = []
@@ -32,6 +36,7 @@ async function getSpotifyData(from: string, to: string) {
 
     console.log('-----------------------')
     console.log(`Fetching Date: ${date}`)
+    // Get the data from each country code and date
     for (const code of Object.keys(countries)) {
       console.log('....')
       console.log(`Fetching Country: ${code}`)
@@ -42,6 +47,7 @@ async function getSpotifyData(from: string, to: string) {
         )
       } catch (error) {
         console.log(`An error occurred at date: ${date}`)
+        // sets date a prev date to break loop.
         date = moment('2017-12-31').format('YYYY-MM-DD')
         break
       }
@@ -49,11 +55,14 @@ async function getSpotifyData(from: string, to: string) {
       const toplist: Song[] = []
 
       const text = await response?.data
+      // create a JSDOM
       const dom = new JSDOM(text)
+      // Select the table
       const table: any = dom.window.document.querySelector(
         '.chart-table > tbody'
       )
       Array.from(table.rows).forEach((element: any) => {
+        // from the rows create a object of type Song.
         const song: Song = {
           artist: element
             .querySelector('.chart-table-track > span')
@@ -67,8 +76,10 @@ async function getSpotifyData(from: string, to: string) {
               ?.textContent.replaceAll(',', '')
           ),
         }
+        // push the created song to the toplist
         toplist.push(song)
       })
+      // Create a Root object and push to the list
       const obj: Root = {
         date,
         country: countries[code as keyof typeof countries],
@@ -78,13 +89,14 @@ async function getSpotifyData(from: string, to: string) {
       list.push(obj)
     }
   }
-
+  // returns a array of Root objects.
   return list
 }
 
 async function addToElastic(from: string, to: string) {
   const data = await getSpotifyData(from, to)
 
+  // sets the index and id for each document i the data returned from getSpotifyData.
   const operations = data.flatMap((doc: Root, count: number) => [
     {
       index: {
@@ -95,8 +107,10 @@ async function addToElastic(from: string, to: string) {
     doc,
   ])
 
+  // get the elastic client.
   const client = elasticClient.getClient()
 
+  // Create the index spotifydata if it doesn't already excists.
   try {
     client.indices.create({
       index: 'spotifydata',
@@ -105,9 +119,10 @@ async function addToElastic(from: string, to: string) {
     console.log(error)
   }
 
+  // bulk write to the elastic client.
   const bulk = await client.bulk({ refresh: true, operations })
 
-  const count = await client.count({ index: 'spotifydata' })
+  // const count = await client.count({ index: 'spotifydata' })
 
   if (bulk.errors) {
     return 'error'
@@ -120,11 +135,13 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  // Only allow GET requests.
   if (req.method !== 'GET') {
     res.setHeader('Allow', ['GET'])
     return res.status(405).end(`Method ${req.method} Not Allowed`)
   }
   if (
+    // Auth user with username and password.
     req.headers.authorization?.split(' ')[1] ===
     Buffer.from(
       `${process.env.ELASTIC_USERNAME}:${process.env.ELASTIC_PASSWORD}`
