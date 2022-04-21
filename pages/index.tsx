@@ -10,7 +10,7 @@ import DatePicker from '../components/DatePicker'
 export async function getServerSideProps({ query }: any) {
   try {
     if (query.from && query.to) {
-      if (query.from > '2022-04-16' || query.from < '2021-08-01') {
+      if (query.from > '2022-04-16' || query.from < '2021-04-01') {
         return {
           redirect: {
             destination: `?from=${'2022-04-16'}&to=${'2022-04-16'}`,
@@ -134,6 +134,7 @@ function Home({ data }: any) {
       </Head>
 
       <main className={styles.main}>
+        <div>Spotify top 200 songs, count of streams per day</div>
         <DatePicker />
         <div className={styles.flagContainer}>
           {Object.entries(activeCountries).map(([key, value]) => {

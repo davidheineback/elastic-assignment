@@ -11,7 +11,7 @@ function DatePicker() {
     <>
       <input
         type="date"
-        min="2021-08-01"
+        min="2021-04-01"
         max="2022-04-16"
         value={fromDate}
         onChange={(e) => setFromDate(e.target.value)}
