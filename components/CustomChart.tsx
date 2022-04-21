@@ -37,7 +37,7 @@ function CustomChart({
         breakpoint,
         options: {
           chart: {
-            height: breakpoint * 0.75 * 0.6,
+            height: breakpoint * 0.6,
             width: breakpoint * 0.75,
           },
         },
