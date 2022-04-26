@@ -45,15 +45,8 @@ function getSearchOptions(from: string, to: string) {
           format: 'date_time',
         },
       ],
-      script_fields: {},
-      stored_fields: ['*'],
-      runtime_mappings: {},
-      _source: {
-        excludes: [],
-      },
       query: {
         bool: {
-          must: [],
           filter: [
             {
               range: {
@@ -65,8 +58,6 @@ function getSearchOptions(from: string, to: string) {
               },
             },
           ],
-          should: [],
-          must_not: [],
         },
       },
     },
