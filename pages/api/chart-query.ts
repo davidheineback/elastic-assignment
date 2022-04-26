@@ -13,7 +13,6 @@ function getSearchOptions(from: string, to: string) {
             order: {
               '2': 'desc',
             },
-            size: 7,
           },
           aggs: {
             '1': {
@@ -38,13 +37,6 @@ function getSearchOptions(from: string, to: string) {
           },
         },
       },
-      size: 0,
-      fields: [
-        {
-          field: 'date',
-          format: 'date_time',
-        },
-      ],
       query: {
         bool: {
           filter: [
